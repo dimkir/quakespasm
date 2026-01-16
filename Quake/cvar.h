@@ -77,14 +77,122 @@ interface from being ambiguous.
 
 typedef void (*cvarcallback_t) (struct cvar_s *);
 
+/*
+ * cvar_t - Console Variable structure
+ *
+ * This is Quake's system for storing configurable variables that can be:
+ * - Changed at runtime via the console (like developer tools in a browser)
+ * - Saved to config files (like localStorage in JS)
+ * - Modified by game code
+ * - Accessed by the scripting language (QuakeC)
+ *
+ * Think of cvars as a dynamic configuration system similar to a JavaScript object
+ * that holds game settings, but with extra features for persistence, networking,
+ * and type conversion.
+ *
+ * Why use structs instead of a JavaScript-style object?
+ * In C, we define the exact memory layout and types upfront. This struct is like
+ * a blueprint that says "every cvar takes exactly this much memory and has these
+ * specific fields in this order." This gives us speed and predictability that
+ * JavaScript's dynamic objects can't provide.
+ */
 typedef struct cvar_s
 {
+	/*
+	 * name - The identifier for this variable (e.g., "sv_maxspeed", "r_draworder")
+	 *
+	 * This is 'const char*' meaning it points to a read-only string. Once set during
+	 * registration, the name never changes. In JavaScript terms, this would be like
+	 * Object.freeze() on the key of a Map entry.
+	 */
 	const char	*name;
+
+	/*
+	 * string - The current value as a text string
+	 *
+	 * Why store values as strings? Because cvars can be set from:
+	 * - The console (text input)
+	 * - Config files (text files)
+	 * - Network messages (serialized text)
+	 *
+	 * String is the "source of truth." Similar to how form inputs in HTML are
+	 * always strings, and you parse them to numbers when needed. This pointer
+	 * points to dynamically allocated memory that gets freed/reallocated when
+	 * the value changes (see Cvar_SetQuick).
+	 */
 	const char	*string;
+
+	/*
+	 * flags - Bit flags controlling behavior (CVAR_ARCHIVE, CVAR_NOTIFY, CVAR_ROM, etc.)
+	 *
+	 * In C, we use bit flags to pack multiple boolean settings into a single integer.
+	 * Each flag is a power of 2, so they can be combined with bitwise OR (|).
+	 *
+	 * Example: flags = CVAR_ARCHIVE | CVAR_NOTIFY means "save to config AND broadcast changes"
+	 *
+	 * In JavaScript, you might use an object like {archive: true, notify: true},
+	 * but bit flags are more memory-efficient (1 int vs multiple properties)
+	 * and faster to check (one bitwise AND operation vs property lookup).
+	 */
 	unsigned int	flags;
+
+	/*
+	 * value - Cached floating-point conversion of the string value
+	 *
+	 * For performance, we pre-parse the string to a float when it's set.
+	 * This avoids calling atof() (string-to-float conversion) every time
+	 * code checks the value.
+	 *
+	 * Think of this like memoization in JavaScript - we compute it once and
+	 * cache it. When code does `if (r_draworder.value)`, it's instant because
+	 * the conversion already happened.
+	 *
+	 * Note: 'float' is a 32-bit floating point number in C, similar to JavaScript's
+	 * Number but with lower precision than the 64-bit doubles JS uses.
+	 */
 	float		value;
-	const char	*default_string; //johnfitz -- remember defaults for reset function
+
+	/*
+	 * default_string - The original/initial value for the reset command
+	 *
+	 * Added by johnfitz for QuakeSpasm. When Cvar_RegisterVariable is called,
+	 * it saves the initial value here. The 'reset' console command restores
+	 * the cvar to this value.
+	 *
+	 * This is like keeping a backup copy of the initial state, similar to
+	 * storing initialState in a React component before allowing modifications.
+	 */
+	const char	*default_string;
+
+	/*
+	 * callback - Function pointer called when the cvar's value changes
+	 *
+	 * This is C's version of event handlers! When a cvar is modified,
+	 * if this is set (and CVAR_CALLBACK flag is set), this function gets called.
+	 *
+	 * In JavaScript: cvar.addEventListener('change', callback)
+	 * In C: cvar->callback = myFunction; cvar->flags |= CVAR_CALLBACK;
+	 *
+	 * cvarcallback_t is a typedef for: void (*)(struct cvar_s*)
+	 * Which means: "a pointer to a function that takes a cvar_s pointer and returns nothing"
+	 *
+	 * This allows code to react to changes, like updating the screen resolution
+	 * when the user changes video settings.
+	 */
 	cvarcallback_t	callback;
+
+	/*
+	 * next - Pointer to the next cvar in the linked list
+	 *
+	 * This is how we implement a linked list in C - each node points to the next one.
+	 * The last cvar in the list has next = NULL.
+	 *
+	 * In JavaScript, you might build this as:
+	 * const list = { value: cvar1, next: { value: cvar2, next: { value: cvar3, next: null }}}
+	 *
+	 * 'struct cvar_s*' means "pointer to another cvar_s struct". The 's' suffix
+	 * is a naming convention (cvar_s for the struct, cvar_t for the typedef).
+	 */
 	struct cvar_s	*next;
 } cvar_t;
 
