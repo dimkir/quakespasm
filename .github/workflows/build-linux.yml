@@ -19,3 +19,9 @@ jobs:
 
     - name: Build ${{ matrix.compiler }}
       run: make --jobs=3 --keep-going --directory=Quake CC=${{ matrix.compiler }} USE_SDL2=1
+
+    - name: Build Tests
+      run: make --directory=Tests CC=${{ matrix.compiler }}
+
+    - name: Run Unit Tests
+      run: cd Tests && ./test_mathlib && ./test_crc
