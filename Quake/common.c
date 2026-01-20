@@ -116,13 +116,11 @@ override an explicit setting on the original command line.
 //============================================================================
 
 /*
-================
 ClearLink
 
 Initializes a doubly-linked list node to point to itself (creates empty circular list).
 This is used when creating new headnodes (sentinel nodes) for doubly-linked lists.
 In a circular doubly-linked list, an empty list has the head pointing to itself.
-================
 */
 void ClearLink (link_t *l)
 {
@@ -130,13 +128,11 @@ void ClearLink (link_t *l)
 }
 
 /*
-================
 RemoveLink
 
 Removes a node from its doubly-linked list by updating the next/prev pointers
 of its neighbors to bypass it. The node itself is not freed (similar to unlinking
 a node in a JavaScript linked list, but you need to manually update both directions).
-================
 */
 void RemoveLink (link_t *l)
 {
@@ -145,13 +141,11 @@ void RemoveLink (link_t *l)
 }
 
 /*
-================
 InsertLinkBefore
 
 Inserts node 'l' into the list immediately before the 'before' node.
 Updates all four pointers involved: l's next/prev and its neighbors' pointers.
 Think of it like splicing a node into a chain by rewiring the connections.
-================
 */
 void InsertLinkBefore (link_t *l, link_t *before)
 {
@@ -162,13 +156,11 @@ void InsertLinkBefore (link_t *l, link_t *before)
 }
 
 /*
-================
 InsertLinkAfter
 
 Inserts node 'l' into the list immediately after the 'after' node.
 Updates all four pointers involved: l's next/prev and its neighbors' pointers.
 Similar to InsertLinkBefore but in the opposite direction.
-================
 */
 void InsertLinkAfter (link_t *l, link_t *after)
 {
@@ -179,7 +171,6 @@ void InsertLinkAfter (link_t *l, link_t *after)
 }
 
 /*
-============================================================================
 
 							DYNAMIC VECTORS
 
@@ -187,18 +178,15 @@ These functions implement a growable array (like JavaScript arrays or C++ vector
 Unlike fixed-size C arrays, these can expand as needed. The header before the data
 stores size (current elements) and capacity (allocated space).
 
-============================================================================
 */
 
 /*
-================
 Vec_Grow
 
 Ensures the vector has capacity for 'count' additional elements.
 If more space is needed, reallocates with 50% growth factor (minimum 16 capacity).
 The double-pointer allows modifying the caller's pointer when reallocation occurs.
 Note: The actual data starts after a hidden header containing size/capacity.
-================
 */
 void Vec_Grow (void **pvec, size_t element_size, size_t count)
 {
@@ -232,14 +220,12 @@ void Vec_Grow (void **pvec, size_t element_size, size_t count)
 }
 
 /*
-================
 Vec_Append
 
 Appends 'count' elements from 'data' to the end of the vector.
 Automatically grows the vector if needed (calls Vec_Grow internally).
 This is like the JavaScript array.push() method but can add multiple elements.
 Updates the size in the header after copying the data.
-================
 */
 void Vec_Append (void **pvec, size_t element_size, const void *data, size_t count)
 {
@@ -251,13 +237,11 @@ void Vec_Append (void **pvec, size_t element_size, const void *data, size_t coun
 }
 
 /*
-================
 Vec_Clear
 
 Resets the vector to zero elements without freeing the allocated memory.
 The capacity remains unchanged, so you can refill it without reallocation.
 Similar to calling array.length = 0 in JavaScript.
-================
 */
 void Vec_Clear (void **pvec)
 {
@@ -266,13 +250,11 @@ void Vec_Clear (void **pvec)
 }
 
 /*
-================
 Vec_Free
 
 Frees the vector's memory and sets the pointer to NULL.
 Note: We free the header (which starts before the actual data pointer),
 then null out the caller's pointer. Always call this to avoid memory leaks.
-================
 */
 void Vec_Free (void **pvec)
 {
@@ -284,7 +266,6 @@ void Vec_Free (void **pvec)
 }
 
 /*
-============================================================================
 
 					LIBRARY REPLACEMENT FUNCTIONS
 
@@ -292,17 +273,14 @@ These q_ prefixed functions provide portable implementations of common
 string/memory functions that may not be available or may behave differently
 across platforms (Windows, Linux, macOS). Think of them as polyfills.
 
-============================================================================
 */
 
 /*
-================
 q_strcasecmp
 
 Case-insensitive string comparison (like String.toLowerCase() comparison in JS).
 Returns 0 if strings are equal (ignoring case), non-zero otherwise.
 Note: In C, 0 means success/equal, which is opposite of JavaScript's truthy values.
-================
 */
 int q_strcasecmp(const char * s1, const char * s2)
 {
@@ -325,12 +303,10 @@ int q_strcasecmp(const char * s1, const char * s2)
 }
 
 /*
-================
 q_strncasecmp
 
 Case-insensitive string comparison for at most 'n' characters.
 Like q_strcasecmp but stops after n characters (useful for prefix matching).
-================
 */
 int q_strncasecmp(const char *s1, const char *s2, size_t n)
 {
@@ -353,13 +329,11 @@ int q_strncasecmp(const char *s1, const char *s2, size_t n)
 }
 
 /*
-================
 q_strcasestr
 
 Finds first occurrence of 'needle' in 'haystack' (case-insensitive).
 Returns pointer to the match or NULL if not found.
 Similar to JavaScript's String.indexOf() but returns pointer instead of index.
-================
 */
 char *q_strcasestr(const char *haystack, const char *needle)
 {
@@ -377,13 +351,11 @@ char *q_strcasestr(const char *haystack, const char *needle)
 }
 
 /*
-================
 q_strlwr
 
 Converts string to lowercase in-place (modifies the original string).
 Returns the same pointer for convenience (allows chaining).
 Unlike JavaScript strings, C strings are mutable arrays of characters.
-================
 */
 char *q_strlwr (char *str)
 {
@@ -398,12 +370,10 @@ char *q_strlwr (char *str)
 }
 
 /*
-================
 q_strupr
 
 Converts string to uppercase in-place (modifies the original string).
 Returns the same pointer for convenience.
-================
 */
 char *q_strupr (char *str)
 {
@@ -418,13 +388,11 @@ char *q_strupr (char *str)
 }
 
 /*
-================
 q_strdup
 
 Creates a malloc'd copy of a string (allocates new memory on the heap).
 Caller is responsible for freeing the returned memory later.
 In JavaScript, strings are immutable and copied automatically; in C you must do it manually.
-================
 */
 char *q_strdup (const char *str)
 {
@@ -444,14 +412,12 @@ char *q_strdup (const char *str)
 #endif
 
 /*
-================
 q_vsnprintf
 
 Safe, portable version of vsnprintf (formatted string printing with va_list).
 Ensures null-termination and handles platform differences (Windows vs Unix).
 The 'va_list' is like JavaScript's 'arguments' object - contains variable arguments.
 Returns number of characters that would be written (excluding null terminator).
-================
 */
 int q_vsnprintf(char *str, size_t size, const char *format, va_list args)
 {
@@ -470,14 +436,12 @@ int q_vsnprintf(char *str, size_t size, const char *format, va_list args)
 }
 
 /*
-================
 q_snprintf
 
 Safe, portable version of snprintf (like sprintf but with size limit).
 Similar to JavaScript template literals or String formatting, but you must
 provide a pre-allocated buffer and its size to prevent buffer overflows.
 Example: q_snprintf(buf, sizeof(buf), "Player: %s Score: %d", name, score);
-================
 */
 int q_snprintf (char *str, size_t size, const char *format, ...)
 {
@@ -492,14 +456,12 @@ int q_snprintf (char *str, size_t size, const char *format, ...)
 }
 
 /*
-================
 Q_memset
 
 Fills memory with a byte value (like Array.fill() but for raw memory).
 Optimized version: if alignment allows, fills 4 bytes at a time instead of 1.
 This is faster than standard memset on some platforms - a performance trick
 from the 90s that may still help on some systems.
-================
 */
 void Q_memset (void *dest, int fill, size_t count)
 {
@@ -518,14 +480,12 @@ void Q_memset (void *dest, int fill, size_t count)
 }
 
 /*
-================
 Q_memcpy
 
 Copies memory from src to dest (like Object.assign() but for raw bytes).
 Optimized to copy 4-byte chunks when possible instead of byte-by-byte.
 WARNING: Unlike JavaScript, this doesn't handle overlapping memory regions.
 Use memmove() if source and destination might overlap.
-================
 */
 void Q_memcpy (void *dest, const void *src, size_t count)
 {
@@ -543,14 +503,12 @@ void Q_memcpy (void *dest, const void *src, size_t count)
 }
 
 /*
-================
 Q_memcmp
 
 Compares two memory regions byte-by-byte.
 Returns 0 if identical, -1 if different.
 Note: This is simpler than standard memcmp (which returns the difference value).
 JavaScript equivalent: comparing two TypedArrays element by element.
-================
 */
 int Q_memcmp (const void *m1, const void *m2, size_t count)
 {
@@ -564,14 +522,12 @@ int Q_memcmp (const void *m1, const void *m2, size_t count)
 }
 
 /*
-================
 Q_strcpy
 
 Copies a null-terminated string from src to dest.
 WARNING: No bounds checking! Dest must be large enough.
 In JavaScript, strings are immutable and auto-managed. In C, you must
 manually copy them and ensure sufficient space to avoid buffer overflows.
-================
 */
 void Q_strcpy (char *dest, const char *src)
 {
@@ -583,13 +539,11 @@ void Q_strcpy (char *dest, const char *src)
 }
 
 /*
-================
 Q_strncpy
 
 Copies up to 'count' characters from src to dest, null-terminates if space allows.
 Safer than Q_strcpy because it limits the copy length.
 Note: May not null-terminate if src is >= count chars (unlike strncpy standard behavior).
-================
 */
 void Q_strncpy (char *dest, const char *src, int count)
 {
@@ -602,13 +556,11 @@ void Q_strncpy (char *dest, const char *src, int count)
 }
 
 /*
-================
 Q_strlen
 
 Returns the length of a null-terminated string (like String.length in JS).
 Counts characters until hitting the '\0' terminator.
 Every C string must end with '\0' - that's how we know where it ends.
-================
 */
 int Q_strlen (const char *str)
 {
@@ -622,14 +574,12 @@ int Q_strlen (const char *str)
 }
 
 /*
-================
 Q_strrchr
 
 Finds the LAST occurrence of character 'c' in string 's'.
 Returns pointer to that character, or NULL if not found.
 Like JavaScript's String.lastIndexOf() but returns a pointer instead of index.
 Useful for finding file extensions (last '.' in a filename).
-================
 */
 char *Q_strrchr(const char *s, char c)
 {
@@ -644,13 +594,11 @@ char *Q_strrchr(const char *s, char c)
 }
 
 /*
-================
 Q_strcat
 
 Appends src string to the end of dest string (like string concatenation in JS).
 WARNING: No bounds checking! Dest must have enough space for both strings.
 In JavaScript you'd do: dest += src. In C, you modify dest in-place.
-================
 */
 void Q_strcat (char *dest, const char *src)
 {
@@ -659,13 +607,11 @@ void Q_strcat (char *dest, const char *src)
 }
 
 /*
-================
 Q_strcmp
 
 Compares two strings for exact equality (case-sensitive).
 Returns 0 if equal, -1 if different.
 Note: In C, 0 means true/success. In JS you'd use === or String.localeCompare().
-================
 */
 int Q_strcmp (const char *s1, const char *s2)
 {
@@ -683,13 +629,11 @@ int Q_strcmp (const char *s1, const char *s2)
 }
 
 /*
-================
 Q_strncmp
 
 Compares up to 'count' characters of two strings.
 Returns 0 if equal, -1 if different.
 Useful for checking string prefixes: Q_strncmp(str, "prefix", 6)
-================
 */
 int Q_strncmp (const char *s1, const char *s2, int count)
 {
@@ -709,7 +653,6 @@ int Q_strncmp (const char *s1, const char *s2, int count)
 }
 
 /*
-================
 Q_atoi
 
 Converts a string to an integer (like parseInt() in JavaScript).
@@ -719,7 +662,6 @@ Supports:
  - Character literals (single quote: 'A' returns 65)
  - Decimal numbers
 Ignores leading whitespace.
-================
 */
 int Q_atoi (const char *str)
 {
@@ -784,7 +726,6 @@ int Q_atoi (const char *str)
 
 
 /*
-================
 Q_atof
 
 Converts a string to a floating-point number (like parseFloat() in JavaScript).
@@ -794,7 +735,6 @@ Supports:
  - Character literals (single quote)
  - Decimal numbers with decimal point
 Ignores leading whitespace. Handles the fractional part by tracking decimal position.
-================
 */
 float Q_atof (const char *str)
 {
@@ -875,7 +815,6 @@ float Q_atof (const char *str)
 }
 
 /*
-============================================================================
 
 					BYTE ORDER FUNCTIONS
 
@@ -887,7 +826,6 @@ Quake's network protocol and file formats use little-endian, so on big-endian
 machines (old PowerPC Macs, some game consoles), we need to swap bytes.
 JavaScript hides this complexity with DataView, but C requires manual handling.
 
-============================================================================
 */
 
 qboolean	host_bigendian;
@@ -900,14 +838,12 @@ float	(*BigFloat) (float l);
 float	(*LittleFloat) (float l);
 
 /*
-================
 ShortSwap
 
 Swaps the byte order of a 16-bit short (2 bytes).
 Example: 0x1234 becomes 0x3412
 Extracts each byte using bit masking (&255), then reassembles in reverse order.
 Think of it like reversing a 2-element array, but at the byte level.
-================
 */
 short ShortSwap (short l)
 {
@@ -920,13 +856,11 @@ short ShortSwap (short l)
 }
 
 /*
-================
 ShortNoSwap
 
 Returns the short unchanged (no-op function).
 Used as a function pointer when no swapping is needed.
 Having this allows using the same code path regardless of platform endianness.
-================
 */
 short ShortNoSwap (short l)
 {
@@ -934,13 +868,11 @@ short ShortNoSwap (short l)
 }
 
 /*
-================
 LongSwap
 
 Swaps the byte order of a 32-bit integer (4 bytes).
 Example: 0x12345678 becomes 0x78563412
 Extracts all 4 bytes, then reassembles them in reverse order using bit shifts.
-================
 */
 int LongSwap (int l)
 {
@@ -955,12 +887,10 @@ int LongSwap (int l)
 }
 
 /*
-================
 LongNoSwap
 
 Returns the integer unchanged (no-op function).
 Function pointer variant for platforms that don't need byte swapping.
-================
 */
 int LongNoSwap (int l)
 {
@@ -968,14 +898,12 @@ int LongNoSwap (int l)
 }
 
 /*
-================
 FloatSwap
 
 Swaps the byte order of a 32-bit float.
 Uses a union (C's way to reinterpret memory) to access the float as bytes,
 then reverses the 4 bytes. JavaScript doesn't expose this level of control.
 Union lets us view the same memory as either a float or an array of bytes.
-================
 */
 float FloatSwap (float f)
 {
@@ -995,12 +923,10 @@ float FloatSwap (float f)
 }
 
 /*
-================
 FloatNoSwap
 
 Returns the float unchanged (no-op function).
 Function pointer variant for platforms that don't need byte swapping.
-================
 */
 float FloatNoSwap (float f)
 {
@@ -1008,7 +934,6 @@ float FloatNoSwap (float f)
 }
 
 /*
-==============================================================================
 
 			MESSAGE IO FUNCTIONS
 
@@ -1019,7 +944,6 @@ a ByteBuffer or ArrayBuffer in JavaScript). The 'sizebuf_t' is a growable
 binary buffer, and these functions write different data types into it.
 All multi-byte values are written in little-endian format for network compatibility.
 
-==============================================================================
 */
 
 //
@@ -1027,13 +951,11 @@ All multi-byte values are written in little-endian format for network compatibil
 //
 
 /*
-================
 MSG_WriteChar
 
 Writes a signed char (-128 to 127) to the message buffer.
 In debug mode (PARANOID), validates the range. Gets buffer space and writes 1 byte.
 Think of this like DataView.setInt8() in JavaScript.
-================
 */
 void MSG_WriteChar (sizebuf_t *sb, int c)
 {
@@ -1049,13 +971,11 @@ void MSG_WriteChar (sizebuf_t *sb, int c)
 }
 
 /*
-================
 MSG_WriteByte
 
 Writes an unsigned byte (0 to 255) to the message buffer.
 Most common write operation - used for commands, flags, small values.
 Like DataView.setUint8() in JavaScript.
-================
 */
 void MSG_WriteByte (sizebuf_t *sb, int c)
 {
@@ -1071,13 +991,11 @@ void MSG_WriteByte (sizebuf_t *sb, int c)
 }
 
 /*
-================
 MSG_WriteShort
 
 Writes a 16-bit short (-32768 to 32767) in little-endian format.
 Manually extracts low and high bytes - low byte first (little-endian).
 JavaScript equivalent: DataView.setInt16(offset, value, true) where true = little-endian.
-================
 */
 void MSG_WriteShort (sizebuf_t *sb, int c)
 {
@@ -1094,13 +1012,11 @@ void MSG_WriteShort (sizebuf_t *sb, int c)
 }
 
 /*
-================
 MSG_WriteLong
 
 Writes a 32-bit integer in little-endian format (4 bytes, lowest byte first).
 Manually extracts each byte using bit shifts and masking.
 JavaScript: DataView.setInt32(offset, value, true).
-================
 */
 void MSG_WriteLong (sizebuf_t *sb, int c)
 {
@@ -1114,14 +1030,12 @@ void MSG_WriteLong (sizebuf_t *sb, int c)
 }
 
 /*
-================
 MSG_WriteFloat
 
 Writes a 32-bit floating point number.
 Uses a union trick to reinterpret the float's bits as an integer,
 converts to little-endian, then writes 4 bytes.
 JavaScript: DataView.setFloat32(offset, value, true).
-================
 */
 void MSG_WriteFloat (sizebuf_t *sb, float f)
 {
@@ -1138,13 +1052,11 @@ void MSG_WriteFloat (sizebuf_t *sb, float f)
 }
 
 /*
-================
 MSG_WriteString
 
 Writes a null-terminated string (C-string) to the buffer.
 Writes all characters plus the '\0' terminator.
 JavaScript doesn't have null-terminated strings - the '\0' marks the end in C.
-================
 */
 void MSG_WriteString (sizebuf_t *sb, const char *s)
 {
@@ -1209,13 +1121,11 @@ int		msg_readcount;
 qboolean	msg_badread;
 
 /*
-================
 MSG_BeginReading
 
 Resets the read position to the start of the message buffer.
 Must be called before reading any data from a new message.
 Similar to resetting a file pointer or ArrayBuffer read offset to 0.
-================
 */
 void MSG_BeginReading (void)
 {
@@ -1224,13 +1134,11 @@ void MSG_BeginReading (void)
 }
 
 /*
-================
 MSG_ReadChar
 
 Reads a signed char (-128 to 127) from the message.
 Returns -1 and sets msg_badread flag if trying to read past the end.
 The cast to 'signed char' is important - ensures sign extension.
-================
 */
 // returns -1 and sets msg_badread if no more characters are available
 int MSG_ReadChar (void)
@@ -1250,13 +1158,11 @@ int MSG_ReadChar (void)
 }
 
 /*
-================
 MSG_ReadByte
 
 Reads an unsigned byte (0-255) from the message.
 Most common read operation. Cast to unsigned char prevents sign extension.
 Like DataView.getUint8() in JavaScript.
-================
 */
 int MSG_ReadByte (void)
 {
@@ -1403,14 +1309,12 @@ float MSG_ReadAngle16 (unsigned int flags)
 //===========================================================================
 
 /*
-================
 SZ_Alloc
 
 Allocates and initializes a sizebuf_t (size buffer) structure.
 Allocates from the hunk (Quake's custom memory allocator) with minimum 256 bytes.
 The sizebuf_t is like a growable ByteBuffer - tracks current size and max capacity.
 Used for network messages and other binary data serialization.
-================
 */
 void SZ_Alloc (sizebuf_t *buf, int startsize)
 {
@@ -1436,14 +1340,12 @@ void SZ_Clear (sizebuf_t *buf)
 }
 
 /*
-================
 SZ_GetSpace
 
 Reserves space in the buffer and returns a pointer to it.
 Grows the buffer if needed (if allowoverflow is set), otherwise errors.
 This is how you get a writable region before writing data.
 Returns pointer to the reserved space and updates cursize.
-================
 */
 void *SZ_GetSpace (sizebuf_t *buf, int length)
 {
@@ -1469,13 +1371,11 @@ void *SZ_GetSpace (sizebuf_t *buf, int length)
 }
 
 /*
-================
 SZ_Write
 
 Writes binary data to the buffer.
 Simple wrapper: gets space then copies data using Q_memcpy.
 Like writing to a ByteBuffer or pushing bytes to an array.
-================
 */
 void SZ_Write (sizebuf_t *buf, const void *data, int length)
 {
@@ -1483,14 +1383,12 @@ void SZ_Write (sizebuf_t *buf, const void *data, int length)
 }
 
 /*
-================
 SZ_Print
 
 Appends a string to the buffer, handling null termination intelligently.
 If buffer already has a trailing null, overwrites it (no double-null).
 Otherwise appends the string with its null terminator.
 Useful for building command strings piece by piece.
-================
 */
 void SZ_Print (sizebuf_t *buf, const char *data)
 {
@@ -1510,14 +1408,12 @@ void SZ_Print (sizebuf_t *buf, const char *data)
 //============================================================================
 
 /*
-================
 COM_SkipPath
 
 Returns a pointer to the filename part of a path (skips directories).
 Example: "maps/e1m1.bsp" returns pointer to "e1m1.bsp"
 Finds the last '/' character and returns everything after it.
 JavaScript equivalent: path.split('/').pop() or path.basename()
-================
 */
 const char *COM_SkipPath (const char *pathname)
 {
@@ -1534,7 +1430,6 @@ const char *COM_SkipPath (const char *pathname)
 }
 
 /*
-================
 COM_StripExtension
 
 Removes the file extension from a path.
@@ -1542,7 +1437,6 @@ Example: "player.mdl" becomes "player"
 Searches backwards for '.', ensuring it's not in a parent directory name.
 Can work in-place (in == out) or copy to a new buffer.
 JavaScript: path.substring(0, path.lastIndexOf('.'))
-================
 */
 void COM_StripExtension (const char *in, char *out, size_t outsize)
 {
@@ -1567,14 +1461,12 @@ void COM_StripExtension (const char *in, char *out, size_t outsize)
 }
 
 /*
-================
 COM_FileGetExtension
 
 Returns a pointer to the file extension (without the dot).
 Example: "textures/wall.tga" returns "tga"
 Returns empty string "" if no extension found.
 Never returns NULL - safe to use in comparisons without null checks.
-================
 */
 const char *COM_FileGetExtension (const char *in)
 {
@@ -1595,9 +1487,7 @@ const char *COM_FileGetExtension (const char *in)
 }
 
 /*
-============
 COM_ExtractExtension
-============
 */
 void COM_ExtractExtension (const char *in, char *out, size_t outsize)
 {
@@ -1609,14 +1499,12 @@ void COM_ExtractExtension (const char *in, char *out, size_t outsize)
 }
 
 /*
-================
 COM_FileBase
 
 Extracts just the filename without path or extension.
 Example: "maps/dm/face.bsp" becomes "face"
 Finds the last slash and last dot, extracts what's between them.
 Returns "?model?" if the result would be invalid.
-================
 */
 void COM_FileBase (const char *in, char *out, size_t outsize)
 {
@@ -1649,11 +1537,9 @@ void COM_FileBase (const char *in, char *out, size_t outsize)
 }
 
 /*
-==================
 COM_DefaultExtension
 if path doesn't have a .EXT, append extension
 (extension should include the leading ".")
-==================
 */
 #if 0 /* can be dangerous */
 void COM_DefaultExtension (char *path, const char *extension, size_t len)
@@ -1675,11 +1561,9 @@ void COM_DefaultExtension (char *path, const char *extension, size_t len)
 #endif
 
 /*
-==================
 COM_AddExtension
 if path extension doesn't match .EXT, append it
 (extension should include the leading ".")
-==================
 */
 void COM_AddExtension (char *path, const char *extension, size_t len)
 {
@@ -1689,7 +1573,6 @@ void COM_AddExtension (char *path, const char *extension, size_t len)
 
 
 /*
-================
 COM_ParseEx
 
 Parse a token out of a string
@@ -1708,7 +1591,6 @@ The mode argument controls how overflow is handled:
 
 Stores result in global com_token buffer. Returns pointer to remaining text.
 This is like a manual tokenizer - JavaScript has String.split() and regex for this.
-================
 */
 const char *COM_ParseEx (const char *data, cpe_mode mode)
 {
@@ -1800,7 +1682,6 @@ skipwhite:
 
 
 /*
-================
 COM_Parse
 
 Parse a token out of a string
@@ -1808,7 +1689,6 @@ Parse a token out of a string
 Simple wrapper around COM_ParseEx that returns NULL on overflow.
 This is the "safe" version that aborts if token is too long.
 Return NULL in case of overflow
-================
 */
 const char *COM_Parse (const char *data)
 {
@@ -1817,7 +1697,6 @@ const char *COM_Parse (const char *data)
 
 
 /*
-================
 COM_CheckParm
 
 Searches command-line arguments for a specific parameter.
@@ -1828,7 +1707,6 @@ Example: If launched with "quake -window -width 1024"
   COM_CheckParm("-nosound") returns 0
 
 JavaScript equivalent: process.argv.indexOf(param)
-================
 */
 int COM_CheckParm (const char *parm)
 {
@@ -1846,7 +1724,6 @@ int COM_CheckParm (const char *parm)
 }
 
 /*
-================
 COM_CheckRegistered
 
 Looks for the pop.txt file and verifies it.
@@ -1859,7 +1736,6 @@ This checks for the registered version by looking for a specific graphic file
 (gfx/pop.lmp) and verifying its checksum matches the original.
 Prevents piracy by ensuring you have the real game data.
 Also prevents loading mods without owning the full game.
-================
 */
 static void COM_CheckRegistered (void)
 {
@@ -1908,7 +1784,6 @@ static void COM_CheckRegistered (void)
 
 
 /*
-================
 COM_InitArgv
 
 Initializes the command-line arguments system.
@@ -1923,7 +1798,6 @@ These command-line args control which game/mod to load:
   -quoth: Quoth mod
 
 JavaScript equivalent: process.argv parsing in Node.js.
-================
 */
 void COM_InitArgv (int argc, char **argv)
 {
@@ -1976,7 +1850,6 @@ void COM_InitArgv (int argc, char **argv)
 }
 
 /*
-================
 COM_Init
 
 Initializes the common module by detecting the system's endianness.
@@ -1986,7 +1859,6 @@ Uses a clever trick: stores 0x12345678 and checks which byte appears first in me
 - If first byte is 0x12: big-endian (PowerPC, some ARM)
 - If first byte is 0x34: PDP-endian (ancient, unsupported)
 JavaScript hides this - DataView handles it automatically.
-================
 */
 void COM_Init (void)
 {
@@ -2035,7 +1907,6 @@ void COM_Init (void)
 
 
 /*
-================
 va
 
 Varargs printf into a temp buffer - cycles between 4 static buffers.
@@ -2051,7 +1922,6 @@ JavaScript equivalent: using template literals: `Player: ${name} Score: ${score}
 But in C we need manual formatting and this buffer management.
 
 FIXME: make this buffer size safe someday
-================
 */
 #define	VA_NUM_BUFFS	4
 #if (MAX_OSPATH >= 1024)
@@ -2082,11 +1952,9 @@ char *va (const char *format, ...)
 }
 
 /*
-=============================================================================
 
 QUAKE FILESYSTEM
 
-=============================================================================
 */
 
 int	com_filesize;
@@ -2118,9 +1986,7 @@ searchpath_t	*com_searchpaths;
 searchpath_t	*com_base_searchpaths;
 
 /*
-============
 COM_Path_f
-============
 */
 static void COM_Path_f (void)
 {
@@ -2139,11 +2005,9 @@ static void COM_Path_f (void)
 }
 
 /*
-============
 COM_WriteFile
 
 The filename will be prefixed by the current game directory
-============
 */
 void COM_WriteFile (const char *filename, const void *data, int len)
 {
@@ -2167,9 +2031,7 @@ void COM_WriteFile (const char *filename, const void *data, int len)
 }
 
 /*
-============
 COM_CreatePath
-============
 */
 void COM_CreatePath (char *path)
 {
@@ -2187,9 +2049,7 @@ void COM_CreatePath (char *path)
 }
 
 /*
-================
 COM_filelength
-================
 */
 long COM_filelength (FILE *f)
 {
@@ -2204,7 +2064,6 @@ long COM_filelength (FILE *f)
 }
 
 /*
-================
 COM_FindFile
 
 Finds the file in the search path.
@@ -2219,7 +2078,6 @@ This searches through the virtual filesystem - checking both:
 Searches in order of search paths (mods override base game).
 Returns filesize on success, -1 on failure.
 JavaScript games usually fetch from HTTP - Quake reads from local disk/archives.
-================
 */
 static int COM_FindFile (const char *filename, int *handle, FILE **file,
 							unsigned int *path_id)
@@ -2321,13 +2179,11 @@ static int COM_FindFile (const char *filename, int *handle, FILE **file,
 
 
 /*
-================
 COM_FileExists
 
 Returns whether the file is found in the quake filesystem.
 Simple wrapper around COM_FindFile that returns boolean.
 Checks both PAK files and real filesystem.
-================
 */
 qboolean COM_FileExists (const char *filename, unsigned int *path_id)
 {
@@ -2336,13 +2192,11 @@ qboolean COM_FileExists (const char *filename, unsigned int *path_id)
 }
 
 /*
-===========
 COM_OpenFile
 
 filename never has a leading slash, but may contain directory walks
 returns a handle and a length
 it may actually be inside a pak file
-===========
 */
 int COM_OpenFile (const char *filename, int *handle, unsigned int *path_id)
 {
@@ -2350,12 +2204,10 @@ int COM_OpenFile (const char *filename, int *handle, unsigned int *path_id)
 }
 
 /*
-===========
 COM_FOpenFile
 
 If the requested file is inside a packfile, a new FILE * will be opened
 into the file.
-===========
 */
 int COM_FOpenFile (const char *filename, FILE **file, unsigned int *path_id)
 {
@@ -2363,11 +2215,9 @@ int COM_FOpenFile (const char *filename, FILE **file, unsigned int *path_id)
 }
 
 /*
-============
 COM_CloseFile
 
 If it is a pak file handle, don't really close it
-============
 */
 void COM_CloseFile (int h)
 {
@@ -2382,7 +2232,6 @@ void COM_CloseFile (int h)
 
 
 /*
-================
 COM_LoadFile
 
 Filename are relative to the quake directory.
@@ -2398,7 +2247,6 @@ Loads a file into memory using different allocation strategies:
 
 Returns pointer to loaded data with null terminator added.
 JavaScript equivalent: fetch() or fs.readFile() - but with manual memory management.
-================
 */
 #define	LOADFILE_ZONE		0
 #define	LOADFILE_HUNK		1
@@ -2574,7 +2422,6 @@ const char *COM_ParseStringNewline(const char *buffer)
 }
 
 /*
-================
 COM_LoadPackFile -- johnfitz -- modified based on topaz's tutorial
 
 Takes an explicit (not game tree related) path to a pak file.
@@ -2589,7 +2436,6 @@ Allows bundling thousands of game files into a single .pak file.
 
 Verifies CRC to detect modified/pirated data files.
 JavaScript equivalent: loading a ZIP archive or tarball.
-================
 */
 static pack_t *COM_LoadPackFile (const char *packfile)
 {
@@ -2663,9 +2509,7 @@ static pack_t *COM_LoadPackFile (const char *packfile)
 }
 
 /*
-=================
 COM_AddGameDirectory -- johnfitz -- modified based on topaz's tutorial
-=================
 */
 static void COM_AddGameDirectory (const char *base, const char *dir)
 {
@@ -2879,7 +2723,6 @@ static void COM_Game_f (void)
 }
 
 /*
-================
 COM_InitFilesystem
 
 Initializes Quake's virtual filesystem.
@@ -2896,7 +2739,6 @@ This creates a unified view where you request "maps/e1m1.bsp" and it finds
 the file regardless of whether it's in a PAK or loose on disk.
 
 JavaScript equivalent: setting up a virtual filesystem or module resolution paths.
-================
 */
 void COM_InitFilesystem (void) //johnfitz -- modified based on topaz's tutorial
 {
@@ -3134,9 +2976,7 @@ long FS_filelength (fshandle_t *fh)
 }
 
 /*
-============================================================================
 								LOCALIZATION
-============================================================================
 */
 typedef struct
 {
@@ -3157,7 +2997,6 @@ typedef struct
 static localization_t localization;
 
 /*
-================
 COM_HashString
 
 Computes the FNV-1a hash of string str
@@ -3166,7 +3005,6 @@ FNV-1a is a fast, non-cryptographic hash function.
 Used for hash table lookups in the localization system.
 Converts a string into a number for fast dictionary-style lookup.
 JavaScript equivalent: Map() uses similar hashing internally.
-================
 */
 unsigned COM_HashString (const char *str)
 {
@@ -3204,7 +3042,6 @@ static Sint32 SDLCALL SDL_RWsize(SDL_RWops *rw) {
 #endif
 
 /*
-================
 LOC_LoadFile
 
 Loads a localization file (translation strings).
@@ -3217,7 +3054,6 @@ Can load from:
 
 Parses the file, builds hash table with 50% load factor for efficiency.
 JavaScript equivalent: loading a JSON language file into a Map.
-================
 */
 void LOC_LoadFile (const char *file)
 {
@@ -3453,9 +3289,7 @@ fail:			mz_zip_reader_end(&archive);
 }
 
 /*
-================
 LOC_Init
-================
 */
 void LOC_Init(void)
 {
@@ -3463,9 +3297,7 @@ void LOC_Init(void)
 }
 
 /*
-================
 LOC_Shutdown
-================
 */
 void LOC_Shutdown(void)
 {
@@ -3475,11 +3307,9 @@ void LOC_Shutdown(void)
 }
 
 /*
-================
 LOC_GetRawString
 
 Returns localized string if available, or NULL otherwise
-================
 */
 const char* LOC_GetRawString (const char *key)
 {
@@ -3512,7 +3342,6 @@ const char* LOC_GetRawString (const char *key)
 }
 
 /*
-================
 LOC_GetString
 
 Returns localized string if available, or input string otherwise
@@ -3521,7 +3350,6 @@ If key starts with '$', looks it up in the localization table.
 Otherwise returns the key itself as a fallback.
 This allows graceful handling of missing translations.
 JavaScript: like i18n.t(key) with automatic fallback.
-================
 */
 const char* LOC_GetString (const char *key)
 {
@@ -3530,12 +3358,10 @@ const char* LOC_GetString (const char *key)
 }
 
 /*
-================
 LOC_ParseArg
 
 Returns argument index (>= 0) and advances the string if it starts with a placeholder ({} or {N}),
 otherwise returns a negative value and leaves the pointer unchanged
-================
 */
 static int LOC_ParseArg (const char **pstr)
 {
@@ -3561,9 +3387,7 @@ static int LOC_ParseArg (const char **pstr)
 }
 
 /*
-================
 LOC_HasPlaceholders
-================
 */
 qboolean LOC_HasPlaceholders (const char *str)
 {
@@ -3579,7 +3403,6 @@ qboolean LOC_HasPlaceholders (const char *str)
 }
 
 /*
-================
 LOC_Format
 
 Replaces placeholders (of the form {} or {N}) with the corresponding arguments
@@ -3591,7 +3414,6 @@ Like sprintf but with {} placeholders instead of % format specifiers.
 {} uses auto-incrementing index, {0} {1} etc. for specific arguments.
 JavaScript equivalent: template literals `Player {0} scored {1} points`
 but with runtime argument substitution via callback function.
-================
 */
 size_t LOC_Format (const char *format, const char* (*getarg_fn) (int idx, void* userdata), void* userdata, char* out, size_t len)
 {
