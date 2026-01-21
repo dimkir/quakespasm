@@ -23,7 +23,41 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "quakedef.h"
 
+/*
+ * cvar_vars - The head/start of a singly-linked list of all registered cvars.
+ *
+ * In C, we don't have JavaScript's built-in objects or Maps. Instead, this code
+ * uses a manually-managed linked list to store all console variables (cvars).
+ * Each cvar_t struct has a 'next' pointer to the next cvar in the list.
+ *
+ * Think of this like the head of a chain: cvar_vars -> cvar1 -> cvar2 -> cvar3 -> NULL
+ *
+ * The list is maintained in alphabetical order (see Cvar_RegisterVariable) which
+ * makes lookups more predictable and debugging easier. Unlike JavaScript where you
+ * can just add properties to objects dynamically, C requires explicit memory management
+ * and data structure design.
+ *
+ * Why a linked list instead of an array?
+ * - Dynamic size: we don't know how many cvars will be registered at compile time
+ * - Easy insertion: adding cvars in alphabetical order is simpler with linked lists
+ * - Memory efficiency: only allocates what's needed (no pre-sized array)
+ */
 static cvar_t	*cvar_vars;
+
+/*
+ * cvar_null_string - A static empty string returned when a cvar lookup fails.
+ *
+ * In JavaScript, you might return undefined or null, but in C, returning a pointer
+ * to NULL for a string is dangerous - if calling code tries to use it (like in
+ * printf), the program will crash.
+ *
+ * Instead, we return a pointer to this valid, empty string. It's safe to print,
+ * compare, and manipulate. This is a common C pattern for "safe defaults".
+ *
+ * The string is declared as an array (not a pointer) so it has a fixed location
+ * in memory that exists for the entire program lifetime (static storage duration).
+ * This is like a const in JavaScript that never gets garbage collected.
+ */
 static char	cvar_null_string[] = "";
 
 //==============================================================================
@@ -258,6 +292,14 @@ cvar_t *Cvar_FindVar (const char *var_name)
 	return NULL;
 }
 
+/*
+============
+Cvar_FindVarAfter
+
+Finds the next cvar in the list after the specified cvar name,
+optionally filtering by flags.
+============
+*/
 cvar_t *Cvar_FindVarAfter (const char *prev_name, unsigned int with_flags)
 {
 	cvar_t	*var;
@@ -285,6 +327,8 @@ cvar_t *Cvar_FindVarAfter (const char *prev_name, unsigned int with_flags)
 /*
 ============
 Cvar_LockVar
+
+Prevents a cvar from being modified by setting the CVAR_LOCKED flag.
 ============
 */
 void Cvar_LockVar (const char *var_name)
@@ -294,6 +338,13 @@ void Cvar_LockVar (const char *var_name)
 		var->flags |= CVAR_LOCKED;
 }
 
+/*
+============
+Cvar_UnlockVar
+
+Removes the CVAR_LOCKED flag from a cvar, allowing it to be modified.
+============
+*/
 void Cvar_UnlockVar (const char *var_name)
 {
 	cvar_t	*var = Cvar_FindVar (var_name);
@@ -301,6 +352,13 @@ void Cvar_UnlockVar (const char *var_name)
 		var->flags &= ~CVAR_LOCKED;
 }
 
+/*
+============
+Cvar_UnlockAll
+
+Removes the CVAR_LOCKED flag from all cvars.
+============
+*/
 void Cvar_UnlockAll (void)
 {
 	cvar_t	*var;
@@ -383,6 +441,15 @@ void Cvar_Reset (const char *name)
 		Cvar_SetQuick (var, var->default_string);
 }
 
+/*
+============
+Cvar_SetQuick
+
+Sets a cvar's value directly using a cvar_t pointer.
+Handles read-only and locked cvars, manages memory allocation,
+and calls any registered callbacks.
+============
+*/
 void Cvar_SetQuick (cvar_t *var, const char *value)
 {
 	if (var->flags & (CVAR_ROM|CVAR_LOCKED))
@@ -428,6 +495,14 @@ void Cvar_SetQuick (cvar_t *var, const char *value)
 		var->callback (var);
 }
 
+/*
+============
+Cvar_SetValueQuick
+
+Sets a cvar's value from a float using a cvar_t pointer.
+Converts the float to a string and calls Cvar_SetQuick.
+============
+*/
 void Cvar_SetValueQuick (cvar_t *var, const float value)
 {
 	char	val[32], *ptr = val;
@@ -493,6 +568,9 @@ void Cvar_SetValue (const char *var_name, const float value)
 /*
 ============
 Cvar_SetROM
+
+Force set a read-only cvar, by temporarily clearing the 
+ROM flag (read only cvar) and then restoring the ROM flag.
 ============
 */
 void Cvar_SetROM (const char *var_name, const char *value)
@@ -509,6 +587,9 @@ void Cvar_SetROM (const char *var_name, const char *value)
 /*
 ============
 Cvar_SetValueROM
+
+Force set a read-only cvar's value from a float, by temporarily
+clearing the ROM flag and then restoring it.
 ============
 */
 void Cvar_SetValueROM (const char *var_name, const float value)

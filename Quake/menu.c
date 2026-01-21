@@ -45,6 +45,7 @@ void M_Menu_Main_f (void);
 		void M_Menu_Video_f (void);
 	void M_Menu_Help_f (void);
 	void M_Menu_Quit_f (void);
+	void M_Menu_Snake_f (void);
 
 void M_Main_Draw (void);
 	void M_SinglePlayer_Draw (void);
@@ -62,6 +63,7 @@ void M_Main_Draw (void);
 		void M_Video_Draw (void);
 	void M_Help_Draw (void);
 	void M_Quit_Draw (void);
+	void M_Snake_Draw (void);
 
 void M_Main_Key (int key);
 	void M_SinglePlayer_Key (int key);
@@ -79,6 +81,7 @@ void M_Main_Key (int key);
 		void M_Video_Key (int key);
 	void M_Help_Key (int key);
 	void M_Quit_Key (int key);
+	void M_Snake_Key (int key);
 
 qboolean	m_entersound;		// play after drawing a frame, so caching
 								// won't disrupt the sound
@@ -497,7 +500,15 @@ void M_Load_Draw (void)
 		M_Print (16, 32 + 8*i, m_filenames[i]);
 
 // line cursor
-	M_DrawCharacter (8, 32 + load_cursor*8, 12+((int)(realtime*4)&1));
+	M_DrawCharacter (
+		8, 
+		32 + load_cursor*8, 
+		12
+		 +
+		 ((int)
+		 	(realtime*4)&1 // Q: isn't this always going to be 0? as we're ding SHL 2 and then &1 which always takes 0 bit
+		 )
+		);
 }
 
 
@@ -1625,7 +1636,7 @@ void M_Menu_Quit_f (void)
 	m_quit_prevstate = m_state;
 	m_state = m_quit;
 	m_entersound = true;
-	msgNumber = rand()&7;
+	msgNumber = rand()&7; // picks any from the possible 8 messages
 }
 
 
@@ -1713,6 +1724,98 @@ void M_Quit_Draw (void) //johnfitz -- modified for new quit message
 	M_Print			(160-4*(sizeof(msg2)-1), 96, msg2);
 	M_PrintWhite		(160-4*(sizeof(msg3)-1), 104, msg3);
 }
+
+//=============================================================================
+/* SNAKE MENU */
+// TODO: may put here some internal state variables for the menu
+int snake_state = 0; // maybe should be an enum or smth like that
+// how to move the game state to different one? 
+int snake_x = 0;
+int snake_y = 0;
+
+void M_Menu_Snake_f (void)
+{
+	if (m_state == m_snake)
+		return;
+	IN_Deactivate(modestate == MS_WINDOWED);
+	key_dest = key_menu; // Q: still not sure why this is here? maybe because we can start the menu from command? and need to force this on
+	m_state = m_snake;
+	m_entersound = true;
+}
+
+
+void M_Snake_Key (int key)
+{
+	switch (key)
+	{
+	case K_ESCAPE:
+	case K_BBUTTON:
+		// m_state = m_main; // no need to set it manually use to_transition
+		M_Menu_SinglePlayer_f();
+		return;
+	case K_ENTER:
+		// maybe we can start a game or smth... or we move game state to the next one 
+		// TODO: what do we do here? 
+		snake_state = snake_state + 1; // TODO: how to advance only in the right directions?
+		break;
+
+	case K_UPARROW:
+		snake_y = snake_y - 1;
+		break;
+	case K_DOWNARROW:
+		snake_y = snake_y + 1;
+		break;
+	case K_LEFTARROW:
+		snake_x = snake_x - 1;
+		break;
+	
+	case K_RIGHTARROW:
+		snake_x = snake_x + 1;
+		break;
+
+	}
+
+
+}
+
+
+void M_Snake_Draw (void)
+{
+	char msg1[128] = { 0 }; 
+	char msg2[128] = { 0 };
+	
+	// HOW TO DRAW STATE? 
+	
+	// Draw graphics
+	// TODO: we need to figure out later how we draw the graphics
+	// at coordinates (snake_x, snake_y)
+	M_DrawCharacter(snake_x, snake_y, 12); // i am not sure what character it will be
+
+	// Draw text, we can print some stuff
+
+	// state
+	// i need a string
+	// how to sprintf
+
+	// Q: When should we use different versions of sprintf()? 
+	//    how different are they? 
+	// q_snprintf(buffer, 5, format, value);
+	// sprintf (cmd, "bind \"%s\" \"%s\"\n", Key_KeynumToString (k), bindnames[keys_cursor][0]);
+	sprintf(msg1, "Snake state: %d", snake_state);
+	// coordinates
+	sprintf(msg2, "Snake coordinates: (%d, %d)", snake_x, snake_y);
+	
+
+	// Q: difference is 10px
+	M_Print(10, 32, msg1);
+	M_Print(10, 42, msg2);
+
+	
+}
+
+
+
+
 
 //=============================================================================
 /* LAN CONFIG MENU */
@@ -2563,6 +2666,7 @@ void M_Init (void)
 	Cmd_AddCommand ("help", M_Menu_Help_f);
 	Cmd_AddCommand ("menu_quit", M_Menu_Quit_f);
 	Cmd_AddCommand ("menu_credits", M_Menu_Credits_f); // needed by the 2021 re-release
+	Cmd_AddCommand ("menu_snake", M_Menu_Snake_f); 
 }
 
 
@@ -2635,6 +2739,10 @@ void M_Draw (void)
 
 	case m_help:
 		M_Help_Draw ();
+		break;
+	
+	case m_snake:
+		M_Snake_Draw ();
 		break;
 
 	case m_quit:
@@ -2724,6 +2832,10 @@ void M_Keydown (int key)
 	case m_help:
 		M_Help_Key (key);
 		return;
+	
+	case m_snake:
+		M_Snake_Key (key);
+		return;
 
 	case m_quit:
 		M_Quit_Key (key);
@@ -2766,7 +2878,7 @@ void M_Charinput (int key)
 	}
 }
 
-
+// Q: what ist his M_TextEntry? 
 qboolean M_TextEntry (void)
 {
 	switch (m_state)
